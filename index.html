@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <style>
+    body {
+      
+    }
+    h3 {
+      font-family: "Helvetica Neue LT St 55 Roman";
+      font-weight: 55;
+      color: #575B66
+      /*font: Verdana, Geneva, sans-serif;*/
+    }
+    ul {
+      display: inline-block;
+      border: none;
+      list-style-type: none;
+      columns: 2;
+      -webkit-column-break-inside: avoid;
+      page-break-inside: avoid;
+      break-inside: avoid;
+      padding-left: 0pt;
+    }
+    li {
+      list-style-position: inside;
+      font: 200 15px/1.5 Helvetica, Verdana, sans-serif;
+      background: #F8F8FF;
+      padding-right: 12px;
+      padding-left: 12px;
+      margin-bottom: 3px;
+    }
+    select {
+      display: block;
+      margin: 0 auto;
+    }
+      font: 200 15px/1.5 Helvetica, Verdana, sans-serif;
+    }
+    .clickable  {
+       color: #0000ff;
+       cursor: pointer;
+    }
+    .info {
+      margin-left: 10px;
+    }
+    /*div {
+      background : #52C2D3;
+    }*/
+    #loader {
+      border: 4px solid #52C2D3;
+      border-radius: 50%;
+      border-top: 4px solid #575B66;
+      width: 20px;
+      height: 20px;
+      -webkit-animation: spin 2s linear infinite;
+      animation: spin 2s linear infinite;
+    }
+    #mainBlock {
+      display: none;
+      text-align: center;
+    }
+    @-webkit-keyframes spin {
+      0% { -webkit-transform: rotate(0deg); }
+     100% { -webkit-transform: rotate(360deg); }
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .overlay {
+      /*background: #e9e9e9;*/
+      background: none;
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      opacity: 1;
+    }
+    </style>
+  </head>
+  <body id="theBody" onload="showLoading()" style="margin: 0;">
+  
+  <div id="overlay" class="overlay" style="margin-top:8%; margin-left:15%; width:33%;">
+    <div id="loader" style="display:inline-block; margin-left: 15px" align="center;"></div><br>
+    <div id="loadText" style="display:inline-block;" align="center;">Loading...</div>
+  </div>
+  
+  <div id="mainBlock" style="display: none; margin-top:2%; width:33%;">
+    <div id="heading" align="center">
+      <img align="center" src="http://www.vajor.com/skin/frontend/default/vajor/images/banner_placeholder_9.png">
+      <h3 id="main-heading">Group Membership</h3>
+      <h5>
+        <input type="radio" id="showAll" checked="checked" onclick="showAll();">Show all groups<br>
+        <input type="radio" id="showMy" onclick="showMy();">Show only my groups
+      </h5>
+    </div>
+    <div align="center">
+      <select id="group_select" onchange="google.script.run.withFailureHandler(alert).withSuccessHandler(UserList).listUsers(group_select.value);">
+        <option>Select a group to view the members</option>
+      </select>
+      <br><a id="group_count" class="info"></a>
+    </div>
+    <div align="center">
+      <ul id="user_list" align="left"></ul>
+    </div>
+  </div>
+  <script>
+  /*
+   Populate dropdown list with all groups contained in input array 'ar'
+   as retrieved from Google's servers.
+  */
+    function GroupListSelect(ar) {
+  
+      var gs = document.getElementById('group_select');
+      gs.length = 0;
+  
+      for (var i = 0; i < ar.length; i++) {
+        var group_name = ar[i].email;
+        var option = document.createElement("option");
+        option.text = option.value = group_name;
+        gs.add(option, gs.length);
+      }
+      
+      document.getElementById('group_select').style.visibility = "visible";
+    }
+
+    /*
+      Populate an unordered list with all the user email addresses in
+      input array 'ar' as retrieved from Google's servers.
+    */
+    function UserList(ar) {
+ 
+      var ulist = document.getElementById('user_list');
+      ulist.innerHTML = "";
+      var memCount = ar.length;
+      var memWord = "";
+    
+      for (var i = 0; i < ar.length; i++) {
+        var email = ar[i].email;
+        var uli = document.createElement("li");
+        uli.appendChild(document.createTextNode(email));
+        ulist.appendChild(uli);
+      }
+  
+      if (memCount == 1) {
+        memWord = " member";
+      }
+      else {
+        memWord = " members";
+      }
+  
+      document.getElementById('group_count').innerHTML = "(" + memCount + memWord + ")";
+      document.getElementById('group_count').style.visibility = "visible";
+    }
+
+    function showAll() {
+      hidePage();
+      document.getElementById('showMy').checked = false;
+      document.getElementById('group_count').innerHTML = "";
+      document.getElementById('user_list').innerHTML = "";
+      google.script.run.withFailureHandler(alert).withSuccessHandler(GroupListSelect).listAllGroups();
+      tmpVar = setTimeout(showPage, 2000);
+    }
+
+    function showMy() {
+      hidePage();
+      document.getElementById('showAll').checked = false;
+      document.getElementById('group_count').innerHTML = "";
+      document.getElementById('user_list').innerHTML = "";
+      google.script.run.withFailureHandler(alert).withSuccessHandler(GroupListSelect).listGroups();
+      tmpVar = setTimeout(showPage, 2000);
+    }
+
+    function showLoading() {
+      google.script.run.withFailureHandler(alert).withSuccessHandler(GroupListSelect).listAllGroups();
+      someVar = setTimeout(showPage, 2000);
+    }
+  
+    function showPage() {
+      document.getElementById("overlay").style.display = "none";
+      document.getElementById("mainBlock").setAttribute("style", "display: inline-block; opacity: 1; margin-top: 2%; width: 33%;");
+    }
+
+    function hidePage() {
+      document.getElementById("mainBlock").setAttribute("style", "display: inline-block; opacity: 0.1; margin-top: 2%; width: 33%; pointer-events: none");
+      document.getElementById("overlay").style.display = "inline-block";
+    }
+    /*
+      Obsolete: function not valid (element does not exist!).
+      Add an onclick event listener to the <li> elements in the unordered
+      list containing all the group email addresses.
+      I'm leaving this here in case I have to add the functionality.
+
+      document.getElementById("group_list").addEventListener("click", function(e) {
+      if (e.target && e.target.nodeName == "LI") {
+        google.script.run.withFailureHandler(alert).withSuccessHandler(UserList).listUsers(e.target.innerHTML);
+      }
+    });
+    */
+  
+  </script>
+  </body>
+</html>
