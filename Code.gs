@@ -7,7 +7,6 @@
 function doGet() {
   return HtmlService.createTemplateFromFile("index.html").evaluate();
 }
-
 /*
  Not used, but present in case an include function is added to index.html
 */
@@ -15,7 +14,6 @@ function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename)
       .getContent();
 }
-
 /*
   Fetch the list of groups that the requesting user is a member
   of, place them in an array and return it to the client.
@@ -29,7 +27,7 @@ function listGroups() {
   
     // Some users are members of groups on other Google domains, ignore those domains
     group_address = groups[i].getEmail().toString();
-    if (group_address.indexOf("YOURDOMAINNAME") > -1) {
+    if (group_address.indexOf("stonethree") > -1) {
       var users = groups[i].getUsers();
       item = {}
       item["email"] = groups[i].getEmail();
@@ -40,7 +38,6 @@ function listGroups() {
   }
   return groupArray;
 }
-
 /*
   Fetch the list of user email addresses that the requesting user is a member
   of and return it to the client.
@@ -60,18 +57,51 @@ function listUsers(groupName) {
 }
 
 /*
+  List all the members of a group. This method replaces 'listUsers(groupName)' above.
+*/
+function getAllMembers(group) {
+  
+  Logger.log(group)
+  
+  var memberPageToken, memberPage;
+  var members = [];
+  do {
+    memberPage = AdminDirectory.Members.list(group, {
+      maxResults: 200,
+      pageToken: memberPageToken
+    });
+    var pageMembers = memberPage.members;
+    if (pageMembers) {
+      for (var j =0; j < pageMembers.length; j++) {
+        //Logger.log(pageMembers[j].email);
+        members.push(pageMembers[j].email);
+      }
+    }
+    memberPageToken = memberPage.nextPageToken;
+  } while (memberPageToken);
+  return members;
+}
+
+
+
+function check_group() {
+  /*listUsers('everyone@stonethree.com');*/
+  getAllMembers_('digital@stonethree.com');
+}
+
+/*
   Use the AdminSDK API to fetch the list of all groups in all
   organisations on the domain, place them in an array and return
   it to the requesting client.
 */
 function listAllGroups() {
   
-  var userArray = [];
+  var groupArray = [];
   var pageToken, page;
   do {
     page = AdminDirectory.Groups.list({
       customer: 'my_customer',
-      maxResults: 100,
+      maxResults: 150,
       pageToken: pageToken
     });
   var groups = page.groups;
@@ -80,7 +110,7 @@ function listAllGroups() {
       var group = groups[i];
       item = {}
       item["email"] = group.email;
-      userArray.push(item);
+      groupArray.push(item);
     }
   } else {
     Logger.log('No users found.');
@@ -88,5 +118,5 @@ function listAllGroups() {
   pageToken = page.nextPageToken;
     } while (pageToken);
   
-  return userArray;
+  return groupArray;
 }
