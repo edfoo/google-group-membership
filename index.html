@@ -88,15 +88,15 @@
   
   <div id="mainBlock" style="display: none; margin-top:2%; width:33%;">
     <div id="heading" align="center">
-      <img align="center" src="http://www.vajor.com/skin/frontend/default/vajor/images/banner_placeholder_9.png">
-      <h3 id="main-heading">Group Membership</h3>
+      <img align="center" src="https://drive.google.com/uc?id=0B08TSkPld_kqTlNjR3M5YTZkV2M">
+      <h3 id="main-heading">Email Group Membership</h3>
       <h5>
         <input type="radio" id="showAll" checked="checked" onclick="showAll();">Show all groups<br>
         <input type="radio" id="showMy" onclick="showMy();">Show only my groups
       </h5>
     </div>
     <div align="center">
-      <select id="group_select" onchange="google.script.run.withFailureHandler(alert).withSuccessHandler(UserList).listUsers(group_select.value);">
+      <select id="group_select" onchange="google.script.run.withFailureHandler(alert).withSuccessHandler(UserList).getAllMembers(group_select.value);">
         <option>Select a group to view the members</option>
       </select>
       <br><a id="group_count" class="info"></a>
@@ -114,7 +114,7 @@
   
       var gs = document.getElementById('group_select');
       gs.length = 0;
-  
+
       for (var i = 0; i < ar.length; i++) {
         var group_name = ar[i].email;
         var option = document.createElement("option");
@@ -124,20 +124,40 @@
       
       document.getElementById('group_select').style.visibility = "visible";
     }
-
+    /*
+      Obsolete : function not called.
+      Populate an unordered list with with email addresses of all the groups
+      in input array 'ar' as retrieved from Google's servers.
+    */
+    function GroupList(ar) {
+  
+      var gl = document.getElementById('group_list');
+  
+      for (var i = 0; i < ar.length; i++) {
+        var group_name = ar[i].email;
+        var gli = document.createElement("li");
+        gli.appendChild(document.createTextNode(group_name));
+        gl.appendChild(gli);
+      }
+  
+      document.getElementById('group_select').style.visibility = "visible";
+    }
     /*
       Populate an unordered list with all the user email addresses in
       input array 'ar' as retrieved from Google's servers.
-    */
+    */        
     function UserList(ar) {
- 
+
+
+      <? Logger.log('this is an ar test') ?>
+
       var ulist = document.getElementById('user_list');
       ulist.innerHTML = "";
       var memCount = ar.length;
       var memWord = "";
     
       for (var i = 0; i < ar.length; i++) {
-        var email = ar[i].email;
+        var email = ar[i];
         var uli = document.createElement("li");
         uli.appendChild(document.createTextNode(email));
         ulist.appendChild(uli);
@@ -153,7 +173,6 @@
       document.getElementById('group_count').innerHTML = "(" + memCount + memWord + ")";
       document.getElementById('group_count').style.visibility = "visible";
     }
-
     function showAll() {
       hidePage();
       document.getElementById('showMy').checked = false;
@@ -162,7 +181,6 @@
       google.script.run.withFailureHandler(alert).withSuccessHandler(GroupListSelect).listAllGroups();
       tmpVar = setTimeout(showPage, 2000);
     }
-
     function showMy() {
       hidePage();
       document.getElementById('showAll').checked = false;
@@ -171,7 +189,6 @@
       google.script.run.withFailureHandler(alert).withSuccessHandler(GroupListSelect).listGroups();
       tmpVar = setTimeout(showPage, 2000);
     }
-
     function showLoading() {
       google.script.run.withFailureHandler(alert).withSuccessHandler(GroupListSelect).listAllGroups();
       someVar = setTimeout(showPage, 2000);
@@ -181,7 +198,6 @@
       document.getElementById("overlay").style.display = "none";
       document.getElementById("mainBlock").setAttribute("style", "display: inline-block; opacity: 1; margin-top: 2%; width: 33%;");
     }
-
     function hidePage() {
       document.getElementById("mainBlock").setAttribute("style", "display: inline-block; opacity: 0.1; margin-top: 2%; width: 33%; pointer-events: none");
       document.getElementById("overlay").style.display = "inline-block";
@@ -191,8 +207,7 @@
       Add an onclick event listener to the <li> elements in the unordered
       list containing all the group email addresses.
       I'm leaving this here in case I have to add the functionality.
-
-      document.getElementById("group_list").addEventListener("click", function(e) {
+    document.getElementById("group_list").addEventListener("click", function(e) {
       if (e.target && e.target.nodeName == "LI") {
         google.script.run.withFailureHandler(alert).withSuccessHandler(UserList).listUsers(e.target.innerHTML);
       }
