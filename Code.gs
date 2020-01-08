@@ -27,7 +27,7 @@ function listGroups() {
   
     // Some users are members of groups on other Google domains, ignore those domains
     group_address = groups[i].getEmail().toString();
-    if (group_address.indexOf("stonethree") > -1) {
+    if (group_address.indexOf("your_domain_name") > -1) {
       var users = groups[i].getUsers();
       item = {}
       item["email"] = groups[i].getEmail();
@@ -85,8 +85,8 @@ function getAllMembers(group) {
 
 
 function check_group() {
-  /*listUsers('everyone@stonethree.com');*/
-  getAllMembers_('digital@stonethree.com');
+  /*listUsers('everyone@your_domain_name.com');*/
+  getAllMembers_('everyone@your_domain_name.com');
 }
 
 /*
